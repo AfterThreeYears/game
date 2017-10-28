@@ -18,6 +18,7 @@
 let pro = 0;
 const width = window.innerWidth;
 const height = window.innerHeight;
+let bgMusic;
 
 var game = new Phaser.Game(width, height, Phaser.AUTO, '#game');
 
@@ -54,9 +55,9 @@ const states = {
             game.load.crossOrigin = 'anonymous'; // 设置跨域
             game.load.image('bg', './img/bg.png');
             game.load.image('dude', './img/dude.png');
-            game.load.image('green', './img/green.png');
-            game.load.image('red', './img/red.png');
-            game.load.image('yellow', './img/yellow.png');
+            game.load.image('green', './img/green1.png');
+            game.load.image('red', './img/red1.png');
+            game.load.image('yellow', './img/yellow1.png');
             game.load.image('bomb', './img/bomb.png');
             game.load.image('five', './img/five.png');
             game.load.image('three', './img/three.png');
@@ -101,6 +102,7 @@ const states = {
         let man;
         let apples;
         let score = 0;
+        
         this.create = function() {
 			// 添加背景
             var bg = game.add.image(0, 0, 'bg');
@@ -122,7 +124,7 @@ const states = {
             });
             title.anchor.setTo(0.5, 0.5);
             // 播放背景音乐
-            const bgMusic = game.add.audio('bgMusic');
+            bgMusic = game.add.audio('bgMusic');
             bgMusic.loopFull();
             const scoreMusic = game.add.audio('scoreMusic');
             const bombMusic = game.add.audio('bombMusic');
@@ -220,8 +222,8 @@ const states = {
     },
     over: function() {
         let score = 0;
-        this.init = function() {
-            score = arguments[0];
+        this.init = function(score) {
+            score = score;
         }
         this.create = function() {
             game.stage.backgroundColor = '#000';
@@ -232,7 +234,7 @@ const states = {
                 fill: '#f2bb15'
             });
             title.anchor.setTo(0.5, 0.5);
-            const scoreStr = '你的得分是：'+score+'分';
+            const scoreStr = '你的得分是：'+ score +'分 老婆好厉害么么哒';
             const scoreText = game.add.text(game.world.centerX, game.world.height * 0.4, scoreStr, {
                 fontSize: '30px',
                 fontWeight: 'bold',
@@ -247,6 +249,8 @@ const states = {
             remind.anchor.setTo(0.5, 0.5);
             // 添加点击事件
             game.input.onTap.add(function() {
+                console.log(bgMusic);
+                bgMusic.stop();
                 game.state.start('play');
             });
         }
