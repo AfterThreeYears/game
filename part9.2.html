@@ -15,24 +15,24 @@
 <div id="game"></div>
 <script type="text/javascript">
 
-let pro = 0;
-const width = window.innerWidth;
-const height = window.innerHeight;
-let bgMusic;
+var pro = 0;
+var width = window.innerWidth;
+var height = window.innerHeight;
+var bgMusic;
 
 var game = new Phaser.Game(width, height, Phaser.AUTO, '#game');
 
-const progressFn = (game) => {
-    let progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
+var progressFn = function(game){
+    var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
         fontSize: '60px',
         fill: '#fff',
     });
-    let deadLine = false;
-    setTimeout(() => {
+    var deadLine = false;
+    setTimeout(function() {
         deadLine = true;
     }, 3000);
     progressText.anchor.setTo(0.5, 0.5);
-    const loadComplete = function() {
+    var loadComplete = function() {
         if (deadLine) {
             game.state.start('created');
         } else {
@@ -40,7 +40,7 @@ const progressFn = (game) => {
         }
     };
 
-    const loading = (progress) => {
+    var loading = function(progress) {
         pro = progressText.text = progress + '%';
     };
 
@@ -48,7 +48,7 @@ const progressFn = (game) => {
     game.load.onLoadComplete.add(loadComplete);
 }
 
-const states = {
+var states = {
     preload: function() {
         this.preload = function() {
 			game.stage.backgroundColor = '#000';
@@ -69,39 +69,39 @@ const states = {
     created: function() {
         this.create = function() {
             // 添加背景
-            let bg = game.add.image(0, 0, 'bg');
+            var bg = game.add.image(0, 0, 'bg');
             bg.width = game.world.width;
             bg.height = game.world.height;
             // 添加标题
-            const title = game.add.text(game.world.centerX, game.world.centerY * 0.25, '小恐龙接苹果', {
+            var title = game.add.text(game.world.centerX, game.world.centerY * 0.25, '小恐龙接苹果', {
                 fontSize: '40px',
                 fontWeight: 'blod',
                 fill: '#f2bb15',
             });
             title.anchor.setTo(0.5, 0.5);
             // 添加提示
-            const remind = game.add.text(game.world.centerX, game.world.centerY * 0.5, '点击任意位置开始', {
+            var remind = game.add.text(game.world.centerX, game.world.centerY * 0.5, '点击任意位置开始', {
                 fontSize: '20px',
                 fill: '#f2bb15'
             });
             remind.anchor.setTo(0.5, 0.5);
             // 添加主角
-            const man = game.add.sprite(game.world.centerX, game.world.height * 0.75, 'dude');
-            const manImage = game.cache.getImage('dude');
+            var man = game.add.sprite(game.world.centerX, game.world.height * 0.75, 'dude');
+            var manImage = game.cache.getImage('dude');
             man.width = game.world.width * 0.2;
             man.height = man.width / manImage.width * manImage.height;
             man.anchor.setTo(0.5, 0.5);
             // 添加点击事件
-            game.input.onTap.add(() => {
+            game.input.onTap.add(function() {
                 game.state.start('play');
             });
         };
     },
     play: function() {
-        let title;
-        let man;
-        let apples;
-        let score = 0;
+        var title;
+        var man;
+        var apples;
+        var score = 0;
         this.create = function() {
 			// 添加背景
             var bg = game.add.image(0, 0, 'bg');
@@ -126,22 +126,22 @@ const states = {
             // 播放背景音乐
             bgMusic = game.add.audio('bgMusic');
             bgMusic.loopFull();
-            const scoreMusic = game.add.audio('scoreMusic');
-            const bombMusic = game.add.audio('bombMusic');
+            var scoreMusic = game.add.audio('scoreMusic');
+            var bombMusic = game.add.audio('bombMusic');
             // 添加苹果
             apples = game.add.group();
-            const appleTypes = ['green', 'red', 'yellow', 'bomb'];
-            const appleTime = game.time.create(true);
-            appleTime.loop(500, () => {
-                const x = Math.random() * game.world.width;
-                const y = 0;
-                const type = appleTypes[Math.floor(Math.random() * appleTypes.length)];
+            var appleTypes = ['green', 'red', 'yellow', 'bomb'];
+            var appleTime = game.time.create(true);
+            appleTime.loop(500, function() {
+                var x = Math.random() * game.world.width;
+                var y = 0;
+                var type = appleTypes[Math.floor(Math.random() * appleTypes.length)];
                 // console.log(x, y, type);
-                const apple = apples.create(x, y, type);
+                var apple = apples.create(x, y, type);
                 // 设置苹果加入物理运动
                 game.physics.enable(apple);
                 // 设置苹果大小
-                const appleImg = game.cache.getImage(type);
+                var appleImg = game.cache.getImage(type);
                 apple.width = game.world.width / 8;
                 apple.height = apple.width / appleImg.width * appleImg.height;
                 // 掉落物设置和边界接触
@@ -160,18 +160,18 @@ const states = {
             game.physics.startSystem(Phaser.Physics.Arcade);
             game.physics.arcade.gravity.y = 300;            
             // 监听滑动事件
-            let touching = false;
-            let dx;
-            game.input.onDown.add((pointer) => {
+            var touching = false;
+            var dx;
+            game.input.onDown.add(function(pointer) {
                 if (Math.abs(pointer.x - man.x) < man.width / 2) {
                     touching = true;
                     dx = man.x - pointer.x;
                 }
             });
-            game.input.onUp.add(() => {
+            game.input.onUp.add(function() {
                 touching = false;
             });
-            game.input.addMoveCallback((pointer, x ,y, isTap) => {
+            game.input.addMoveCallback(function(pointer, x ,y, isTap) {
                 // console.log(x, y);
                 if (!isTap && touching) man.x = x + dx;
             });
@@ -180,7 +180,7 @@ const states = {
             // 检测主角和掉落物的碰撞
             game.physics.arcade.overlap(man, apples, pickApple, null, this);
         }
-        const pickApple = function(man, apple) {
+        var pickApple = function(man, apple) {
             var point = 1;
             var img = 'one';
             if (apple.key === 'red') {
@@ -227,20 +227,20 @@ const states = {
         this.create = function() {
             game.stage.backgroundColor = '#000';
             // 添加文本
-            const title = game.add.text(game.world.centerX, game.world.centerY * 0.25, '游戏结束',{
+            var title = game.add.text(game.world.centerX, game.world.centerY * 0.25, '游戏结束',{
                 fontSize: '40px',
                 fontWeight: 'bold',
                 fill: '#f2bb15'
             });
             title.anchor.setTo(0.5, 0.5);
-            const scoreStr = '你的得分是：'+ score +'分 我姐好厉害么么哒';
-            const scoreText = game.add.text(game.world.centerX, game.world.height * 0.4, scoreStr, {
+            var scoreStr = '你的得分是：'+ score +'分 我姐好厉害么么哒';
+            var scoreText = game.add.text(game.world.centerX, game.world.height * 0.4, scoreStr, {
                 fontSize: '30px',
                 fontWeight: 'bold',
                 fill: '#f2bb15'
             });
             scoreText.anchor.setTo(0.5, 0.5);
-            const remind = game.add.text(game.world.centerX, game.world.height * 0.6, '点击任意位置再玩一次', {
+            var remind = game.add.text(game.world.centerX, game.world.height * 0.6, '点击任意位置再玩一次', {
                 fontSize: '20px',
                 fontWeight: 'bold',
                 fill: '#f2bb15'
@@ -256,8 +256,12 @@ const states = {
     },
 };
 
+var arr = [];
+for (var key in states) {
+    arr.push(key);
+}
 
-Object.keys(states).map(function(key) {
+arr.map(function(key) {
 	game.state.add(key, states[key]);
 });
 
