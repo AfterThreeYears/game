@@ -55,9 +55,9 @@ const states = {
             game.load.crossOrigin = 'anonymous'; // 设置跨域
             game.load.image('bg', './img/bg.png');
             game.load.image('dude', './img/dude.png');
-            game.load.image('green', './img/green.png');
-            game.load.image('red', './img/red.png');
-            game.load.image('yellow', './img/yellow.png');
+            game.load.image('green', './img/green1.png');
+            game.load.image('red', './img/red1.png');
+            game.load.image('yellow', './img/yellow1.png');
             game.load.image('bomb', './img/bomb.png');
             game.load.image('five', './img/five.png');
             game.load.image('three', './img/three.png');
@@ -102,7 +102,6 @@ const states = {
         let man;
         let apples;
         let score = 0;
-        
         this.create = function() {
 			// 添加背景
             var bg = game.add.image(0, 0, 'bg');
@@ -117,6 +116,7 @@ const states = {
             game.physics.enable(man); // 加入物理运动
             man.body.allowGravity = false; // 清除重力影响
             // 添加分数
+            score = 0;
             title = game.add.text(game.world.centerX, game.world.height * 0.25, score, {
                 fontSize: '40px',
                 fontWeight: 'bold',
@@ -221,9 +221,8 @@ const states = {
         }
     },
     over: function() {
-        let score = 0;
-        this.init = function(score) {
-            score = score;
+        this.init = function() {
+            score = arguments[0];
         }
         this.create = function() {
             game.stage.backgroundColor = '#000';
