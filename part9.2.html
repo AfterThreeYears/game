@@ -16,27 +16,30 @@
 <script type="text/javascript">
 
 var pro = 0;
-var width = window.innerWidth;
-var height = window.innerHeight;
+// var width = window.innerWidth;
+// var height = window.innerHeight;
 var bgMusic;
+var scoreMusic;
+var bombMusic;
 
-var game = new Phaser.Game(width, height, Phaser.AUTO, '#game');
+var game = new Phaser.Game('100%', '100%', Phaser.AUTO, '#game');
 
-var progressFn = function(game){
+var progressFn = function() {
     var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
         fontSize: '60px',
         fill: '#fff',
     });
+    progressText.anchor.setTo(0.5, 0.5);
+    
     var deadLine = false;
     setTimeout(function() {
         deadLine = true;
-    }, 3000);
-    progressText.anchor.setTo(0.5, 0.5);
+    }, 0);
     var loadComplete = function() {
         if (deadLine) {
-            game.state.start('created');
+            game.state.start('play');
         } else {
-            setTimeout(loadComplete, 1000);
+            setTimeout(loadComplete, 0);
         }
     };
 
@@ -63,7 +66,12 @@ var states = {
             game.load.image('three', './img/three.png');
             game.load.image('one', './img/one.png');
             game.load.audio('bgMusic', './audio/bgm.mp3');
-            progressFn(game);
+            game.load.audio('scoreMusic', './audio/addscore.mp3');
+            game.load.audio('bombMusic', './audio/boom.mp3');
+            progressFn();
+        }
+        this.create = function() {
+            // 资源加载完毕，进行跳转
         }
     },
     created: function() {
@@ -126,8 +134,8 @@ var states = {
             // 播放背景音乐
             bgMusic = game.add.audio('bgMusic');
             bgMusic.loopFull();
-            var scoreMusic = game.add.audio('scoreMusic');
-            var bombMusic = game.add.audio('bombMusic');
+            scoreMusic = game.add.audio('scoreMusic');
+            bombMusic = game.add.audio('bombMusic');
             // 添加苹果
             apples = game.add.group();
             var appleTypes = ['green', 'red', 'yellow', 'bomb'];
@@ -190,9 +198,12 @@ var states = {
                 point = 5;
                 img = 'five';
             } else if (apple.key === 'bomb') {
+                bombMusic.play();
                 game.state.start('over', true, false, score);
                 return;
             }
+            // 播放得分音乐
+            scoreMusic.play();
             // 添加得分图片
             var goal = game.add.image(apple.x, apple.y, img);
             var goalImg = game.cache.getImage(img);
@@ -256,14 +267,13 @@ var states = {
     },
 };
 
-var arr = [];
 for (var key in states) {
-    arr.push(key);
+    if (states.hasOwnProperty(key)) {
+        game.state.add(key, states[key], true);
+    }
 }
 
-arr.map(function(key) {
-	game.state.add(key, states[key]);
-});
+
 
 // 启动游戏
 game.state.start('preload');
