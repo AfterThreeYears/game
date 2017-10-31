@@ -33,7 +33,7 @@ var states = {
 
       game.load.spritesheet('bird', './img/flappybird/bird34*24*3.png', 34, 24, 3);
       game.load.spritesheet('pipe', './img/flappybird/pipes54*320*2.png', 54, 320, 2);
-      game.load.bitmapFont('flappy_font', './fonts/flappyfont.png', '/fonts/flappyfont.fnt')
+      game.load.bitmapFont('flappy_font', './fonts/flappyfont.png', './fonts/flappyfont.fnt')
     
       game.load.audio('bg', './audio/flybird/bg.mp3');
       game.load.audio('flap', './audio/flybird/flap.wav');
