@@ -1,9 +1,10 @@
-var game = new Phaser.Game(282, 505, Phaser.AUTO);
+var game = new Phaser.Game(288, 505, Phaser.AUTO);
+
 var states = {
   boot: function() {
     this.preload = function() {
       if(!game.device.desktop){
-        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
         this.scale.forcePortrait = true;
         this.scale.refresh();
       }
@@ -31,7 +32,7 @@ var states = {
       game.load.image('start-button', './img/flappybird/start-button.png');
       game.load.image('title', './img/flappybird/title.png');
 
-      game.load.spritesheet('bird', './img/flappybird/bird34*24*3.png', 34, 24, 3);
+      game.load.spritesheet('bird', './img/flappybird/test.png', 100, 100, 2);
       game.load.spritesheet('pipe', './img/flappybird/pipes54*320*2.png', 54, 320, 2);
       game.load.bitmapFont('flappy_font', './fonts/flappyfont.png', './fonts/flappyfont.fnt')
     
@@ -56,7 +57,9 @@ var states = {
       titleGroup.create(0, 0, 'title');
       var bird = titleGroup.create(190, 10, 'bird');
       bird.animations.add('fly');
-      bird.animations.play('fly', 20, true);
+      bird.animations.play('fly', 30, true);
+      bird.width = 50;
+      bird.height = 50;
       titleGroup.x = 35;
       titleGroup.y = 100;
       game.add.tween(titleGroup)
@@ -100,12 +103,13 @@ var states = {
       this.bird = game.add.sprite(50, 120, 'bird');
       this.bird.animations.add('fly');
       this.bird.animations.play('fly', 10, true);
-      this.bird.anchor.x = 0.5;
-      this.bird.anchor.y = 0.5;
+      this.bird.anchor.setTo(0.5, 0.5);
+      this.bird.width = 50;
+      this.bird.height = 50;
       game.physics.enable(this.bird, Phaser.Physics.ARCADE);
       this.bird.body.gravity.y = 0;
 
-      game.time.events.loop(800, this.generatePipes, this);
+      game.time.events.loop(1000, this.generatePipes, this);
       game.time.events.stop(false);
 
       game.input.onTap.addOnce(this.startGame, this);
@@ -126,7 +130,7 @@ var states = {
     this.fly = function() {
       this.flap.play();
       this.bird.body.velocity.y = -350;
-      game.add.tween(this.bird).to({angle: -30}, 100, null, true, 0, 0, false);
+      game.add.tween(this.bird).to({angle: -30}, 80, null, true, 0, 0, false);
     }
     this.generatePipes = function() {
       var gap = 100;
@@ -138,8 +142,7 @@ var states = {
       
       var topPipe = game.add.sprite(game.width, topPipeY, 'pipe', 0, this.pipeGroup);
       var bottomPipe = game.add.sprite(game.width, bottomPipeY, 'pipe', 1, this.pipeGroup);
-      game.debug.body(topPipe);
-      game.debug.body(bottomPipe);
+ 
       this.pipeGroup.setAll('checkWorldBounds', true);
       this.pipeGroup.setAll('outOfBoundsKill', true);
       this.pipeGroup.setAll('body.velocity.x', -this.gameSpeed);
