@@ -1,10 +1,11 @@
-var game = new Phaser.Game(288, 505, Phaser.AUTO);
+
+var game = new Phaser.Game(288, 505, Phaser.CANVAS);
 
 var states = {
   boot: function() {
     this.preload = function() {
       if(!game.device.desktop){
-        this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.scale.forcePortrait = true;
         this.scale.refresh();
       }
@@ -32,7 +33,7 @@ var states = {
       game.load.image('start-button', './img/flappybird/start-button.png');
       game.load.image('title', './img/flappybird/title.png');
 
-      game.load.spritesheet('bird', './img/flappybird/test.png', 100, 100, 2);
+      game.load.spritesheet('bird', './img/flappybird/bird34*24*3.png', 34, 24, 3);
       game.load.spritesheet('pipe', './img/flappybird/pipes54*320*2.png', 54, 320, 2);
       game.load.bitmapFont('flappy_font', './fonts/flappyfont.png', './fonts/flappyfont.fnt')
     
@@ -49,17 +50,18 @@ var states = {
   },
   created: function() {
     this.create = function() {
+      // game.add.plugin(Phaser.Plugin.Debug);
       var background = game.add.tileSprite(0, 0, game.width, game.height, 'background');
       background.autoScroll(-10, 0);
-      var ground = game.add.tileSprite(0, game.height-112, game.width, 112, 'ground');
+      var ground = game.add.tileSprite(0, game.height - 112, game.width, 112, 'ground');
       ground.autoScroll(-100 ,0);
       var titleGroup = game.add.group();
       titleGroup.create(0, 0, 'title');
       var bird = titleGroup.create(190, 10, 'bird');
       bird.animations.add('fly');
       bird.animations.play('fly', 30, true);
-      bird.width = 50;
-      bird.height = 50;
+      // bird.width = 50;
+      // bird.height = 50;
       titleGroup.x = 35;
       titleGroup.y = 100;
       game.add.tween(titleGroup)
@@ -76,7 +78,7 @@ var states = {
       this.hasHitGround = false;
       this.score = 0;
       this.ready = false;
-      
+
       this.bg = game.add.audio('bg');
       this.flap = game.add.audio('flap');
       this.pipeHit = game.add.audio('pipe-hit');
@@ -89,7 +91,7 @@ var states = {
       this.pipeGroup = game.add.group();
       this.pipeGroup.enableBody = true;
     
-      this.ground = game.add.tileSprite(0, game.height-112, game.width, 112, 'ground');
+      this.ground = game.add.tileSprite(0, game.height - 112, game.width, 112, 'ground');
       game.physics.enable(this.ground, Phaser.Physics.ARCADE);
       this.ground.body.immovable = true;
 
@@ -104,8 +106,8 @@ var states = {
       this.bird.animations.add('fly');
       this.bird.animations.play('fly', 10, true);
       this.bird.anchor.setTo(0.5, 0.5);
-      this.bird.width = 50;
-      this.bird.height = 50;
+      // this.bird.width = 50;
+      // this.bird.height = 50;
       game.physics.enable(this.bird, Phaser.Physics.ARCADE);
       this.bird.body.gravity.y = 0;
 
@@ -113,6 +115,8 @@ var states = {
       game.time.events.stop(false);
 
       game.input.onTap.addOnce(this.startGame, this);
+
+      this.testText = game.add.text(game.world.centerX, game.world.centerY, '0');
     }
     this.startGame = function() {
       this.gameSpeed = 200;
@@ -138,11 +142,12 @@ var states = {
       var position = 50 + Math.floor((game.world.height - this.ground.height - difficulty - gap) * Math.random());
       var topPipeY = position - 320;
       var bottomPipeY = position + difficulty;
+      console.log(this.pipeGroup.children.length);
+      this.testText.text = `${this.pipeGroup.children.length}`;
+
       if(this.resetPipe(topPipeY, bottomPipeY)) return;
-      
-      var topPipe = game.add.sprite(game.width, topPipeY, 'pipe', 0, this.pipeGroup);
-      var bottomPipe = game.add.sprite(game.width, bottomPipeY, 'pipe', 1, this.pipeGroup);
- 
+      game.add.sprite(game.width, topPipeY, 'pipe', 0, this.pipeGroup);
+      game.add.sprite(game.width, bottomPipeY, 'pipe', 1, this.pipeGroup);
       this.pipeGroup.setAll('checkWorldBounds', true);
       this.pipeGroup.setAll('outOfBoundsKill', true);
       this.pipeGroup.setAll('body.velocity.x', -this.gameSpeed);
@@ -186,16 +191,20 @@ var states = {
       this.gameOver();
     }
     this.checkScore = function(pipe) {
-      if (!pipe.hasScored && pipe.y <= 0 && pipe.x + pipe.width <= this.bird.x + this.bird.width / 2) {
+      if (!pipe.hasScored && pipe.y <= 0 && pipe.x <= this.bird.x - 17 - 54) {
         pipe.hasScored  = true;
         this.scoreAudio.play();
         this.scoreText.text = ++this.score; //更新分数的显示
+        return true; 
       }
+      return false;
     }
     this.hit = function() {
       game.input.onTap.remove(this.fly, this);
       game.time.events.stop(false);
-      this.pipeGroup.setAll('body.velocity.x', 0);
+      this.pipeGroup.forEachExists(function(pipe) {
+        pipe.body.velocity.x = 0;
+      }, this);
       this.background.stopScroll(0, 0);
       this.ground.stopScroll(0, 0);
       this.bird.animations.stop('fly');
