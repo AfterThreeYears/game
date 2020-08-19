@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box {
+      background: #3ce63c;
+      height: 50px;
+      width: 50px;
+      border: 2px solid #fff;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .black::after {
+      content: '';
+      height: 80%;
+      width: 80%;
+      background: black;
+      display: block;
+      border-radius: 100%;
+      margin: 10%;
+    }
+
+    .white::after {
+      content: '';
+      height: 80%;
+      width: 80%;
+      background: white;
+      display: block;
+      border-radius: 100%;
+      margin: 10%;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <p class="tip"></p>
+  <script>
+    const app = document.getElementById('app');
+    const tip = document.querySelector('.tip');
+    const BLACK = 2;
+    const WHITE = 1;
+    const EMPTY = 0;
+    const INIT_HIT = 6;
+    const ROW = 5;
+    const COL = 5;
+    let hit = INIT_HIT;
+    let color = WHITE;
+    const border = generateBorder(ROW, COL, INIT_HIT);
+    const directions = [
+      {
+        x: -1,
+        y: -1
+      },
+      {
+        x: 0,
+        y: -1
+      },
+      {
+        x: 1,
+        y: -1
+      },
+      {
+        x: 1,
+        y: 0
+      },
+      {
+        x: 1,
+        y: 1
+      },
+      {
+        x: 0,
+        y: 1
+      },
+      {
+        x: -1,
+        y: 1
+      },
+      {
+        x: -1,
+        y: 0
+      }
+    ];
+
+    function generateBorder(row, col, initPieceLen) {
+      return Array.from(Array(ROW)).map(item => {
+        const array = Array.from(Array(COL)).fill(0);
+        // if (Math.random() > 0.5) {
+        //   initPieceLen -= 1;
+        // }
+        return array;
+      })
+      // return [
+      //   [0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 0, 0, 1, 2, 0, 0, 0],
+      //   [0, 0, 0, 2, 1, 0, 0, 0],
+      //   [0, 0, 0, 0, 0, 1, 0, 0],
+      //   [0, 0, 0, 0, 0, 0, 2, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0],
+      // ];
+    }
+
+    function isOut(postion) {
+      return postion < 0 || postion > ROW - 1;
+    }
+
+    function handleClick(x, y, value) {
+      return function() {
+        if (border[y][x] !== EMPTY) return;
+        border[y][x] = color;
+        directions.forEach(direction => {
+          const moveX = direction.x;
+          const moveY = direction.y;
+          if (isOut(x + moveX) || isOut(y + moveY)) {
+            return;
+          }
+          let nextX = x;
+          let nextY = y;
+          let isEat = false;
+          while (true) {
+            nextX += moveX;
+            nextY += moveY;
+
+            if (isOut(nextX) || isOut(nextY)) {
+              return;
+            }
+
+            const nextValue = border[nextY][nextX];
+
+            if (nextValue === color && isEat) {
+              while (nextX !== x || nextY !== y) {
+                nextX -= moveX;
+                nextY -= moveY;
+                border[nextY][nextX] = color;
+              }
+              return;
+            }
+
+            if (nextValue === 3 - color) {
+              isEat = true;
+              continue;
+            }
+
+            return;
+          }
+        });
+
+        color = 3 - color;
+        render();
+        hit += 1;
+        if (hit === (COL * ROW)) {
+          confirmFinish();
+        }
+      }
+    }
+
+    function render() {
+      app.innerHTML = '';
+      tip.innerHTML = `当前${color === BLACK ? '黑' : '白'}子下`;
+      for (let y = 0; y < ROW; y++) {
+        for (let x = 0; x < COL; x++) {
+          const value = border[y][x];
+          const box = document.createElement('div');
+          box.classList.add('box');
+          if (value === WHITE) {
+            box.classList.add('white');
+          }
+          if (value === BLACK) {
+            box.classList.add('black');
+          }
+          app.append(box);
+          box.addEventListener('click', handleClick(x, y, value), false)
+        }
+        app.append(document.createElement('br'));
+      }
+    }
+
+    function confirmFinish() {
+      const borders = border.flat();
+      const whiteLen = borders.filter(item => item === WHITE).length;
+      const blackLen = borders.filter(item => item === BLACK).length;
+      if (whiteLen === blackLen) {
+        window.confirm('平局');
+      } else if (whiteLen > blackLen) {
+        window.confirm('白方胜利');
+      } else {
+        window.confirm('黑方胜利');
+      }
+      location.reload();
+    }
+
+    render();
+
+  </script>
+</body>
+</html>
